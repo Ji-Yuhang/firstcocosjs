@@ -69,7 +69,7 @@ var HelloWorldLayer = cc.Layer.extend({
         // this.addChild(menu, 1);
 
         this.addSushi();
-        this.schedule(this.update, 10,16*1024,10);
+        // this.schedule(this.update, 10,16*1024,10);
         this.scoreLabel = new cc.LabelTTF("score:0", "Arial", 20);
         this.scoreLabel.attr({
             x:size.width / 2 + 100,
@@ -84,6 +84,7 @@ var HelloWorldLayer = cc.Layer.extend({
         this.addChild(this.timeoutLabel, 5);
         this.schedule(this.timer,1,this.timeout,1);
         this.addKeyboardListenser();
+        this.update();
         return true;
     },
     addScore:function(){
@@ -116,6 +117,7 @@ var HelloWorldLayer = cc.Layer.extend({
                 this.tanks[i].removeFromParent();
                 this.tanks[i] = undefined;
                 this.tanks.splice(i,1);
+                if (this.current_tank == this.tanks[i]) this.current_tank = undefined;
                 i= i-1;
             }
         }
@@ -171,6 +173,7 @@ var HelloWorldLayer = cc.Layer.extend({
         },
         addKeyboardListenser:function(){
             var tanks = this.tanks;
+            var that = this;
             this.keyboardListener = cc.EventListener.create({
                 event: cc.EventListener.KEYBOARD,
                 // When "swallow touches" is true, then returning 'true' from the onTouchBegan method will "swallow" the touch event, preventing other listeners from using it.
@@ -217,15 +220,51 @@ var HelloWorldLayer = cc.Layer.extend({
                         
                         var first_letter = temp_letters.shift();
                         if (!first_letter){
-                            this.current_tank = null;
-                        } else {
-                            cc.log('temp_letters, first_letter',temp_letters, first_letter,lower_case_letter,lower_case_letter == first_letter)
-                            var will_word = temp_letters.join('');
-                            if (lower_case_letter == first_letter){
-                                this.current_tank.word = will_word;
-                                this.current_tank.label.setString(will_word);
-                                
+                            // this.current_tank = null;
+                            for (var i = 0; i < tanks.length; i++) {
+
+                                if(this.current_tank == tanks[i]) {
+                                    cc.log("==============remove:",i,tanks[i].word);
+                                    tanks[i].removeFromParent();
+                                    tanks[i] = undefined;
+                                    that.tanks.splice(i,1);
+                                    this.current_tank = undefined;
+                                    i= i-1;
+                                }
                             }
+                            that.addSushi();
+
+                        } else {
+
+                            if (temp_letters.length <= 0 ){
+                                for (var i = 0; i < tanks.length; i++) {
+
+                                    if(this.current_tank == tanks[i]) {
+                                        cc.log("==============remove:",i,tanks[i].word);
+                                        tanks[i].removeFromParent();
+                                        tanks[i] = undefined;
+                                        that.tanks.splice(i,1);
+                                        this.current_tank = undefined;
+                                        i= i-1;
+                                    }
+                                }
+                                that.addSushi();
+                            } else {
+                                cc.log('temp_letters, first_letter',temp_letters, first_letter,lower_case_letter,lower_case_letter == first_letter)
+                                var will_word = temp_letters.join('');
+                                if (lower_case_letter == first_letter){
+                                    this.current_tank.word = will_word;
+                                    this.current_tank.zIndex = 6;
+                                    this.current_tank.label.setFontFillColor(cc.color("#ffff00"));
+                                    this.current_tank.label.setFontSize(14);
+                                    this.current_tank.label.setString(will_word);
+
+                                }
+                            }
+
+
+
+
                         }
             
                     }
