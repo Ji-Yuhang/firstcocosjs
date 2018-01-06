@@ -193,8 +193,9 @@ var HelloWorldLayer = cc.Layer.extend({
                 // }
                 onKeyPressed:  function(keyCode, event){
                     var target = event.getCurrentTarget();
-                    var lower_case_letter = String.fromCharCode(keyCode).toLowerCase()
-                    cc.log('key pressed', keyCode.toString(),lower_case_letter);
+                    var lower_case_letter = String.fromCharCode(keyCode).toLowerCase();
+                    if (keyCode == 189) lower_case_letter = '-';
+                    cc.log('key pressed', keyCode,lower_case_letter);
                     
                     if (!this.current_tank){
                         for (var i = 0; i < tanks.length; i++) {
