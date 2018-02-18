@@ -194,7 +194,7 @@ var HelloWorldLayer = cc.Layer.extend({
                 onKeyPressed:  function(keyCode, event){
                     var target = event.getCurrentTarget();
                     var lower_case_letter = String.fromCharCode(keyCode).toLowerCase();
-                    if (keyCode == 189) lower_case_letter = '-';
+                    if (keyCode == 189 || keyCode == 173) lower_case_letter = '-';
                     cc.log('key pressed', keyCode,lower_case_letter);
                     
                     if (!this.current_tank){
@@ -251,7 +251,11 @@ var HelloWorldLayer = cc.Layer.extend({
                                 }
                                 that.addSushi();
                             } else {
-                                cc.log('temp_letters, first_letter',temp_letters, first_letter,lower_case_letter,lower_case_letter == first_letter)
+                                cc.log('temp_letters:', temp_letters);
+                                cc.log('first_letter:', first_letter);
+                                cc.log('lower_case_letter:', lower_case_letter);
+                                cc.log('lower_case_letter == first_letter:', lower_case_letter == first_letter);
+
                                 var will_word = temp_letters.join('');
                                 if (lower_case_letter == first_letter){
                                     this.current_tank.word = will_word;
