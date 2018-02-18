@@ -5,15 +5,19 @@ var HelloWorldLayer = cc.Layer.extend({
     timeoutLabel: null,
     words: [],
     current_tank: null,
+    timeout: 600,
+    opperssor: null,
+    score: 0,
     ctor:function () {
         //////////////////////////////
         // 1. super init first
         this._super();
 
-
         // this.words = JSON.parse(res.collins_1_josn);
         this.words = ["zoology","zodiac","diagram","used","astrologer","astrology","second-hand","cast-off","outcast","unfashionable","antiquated","obsolete","extinct","archaic","disused","out","of","date","vent","aperture","duct","emit","forceful","persuasive","emphatic","categorical","insistent","pronounced","resounding","unequivocal","unmistakable","saying","maxim","motto","unambiguous","resonant","ringing","intended","conspicuous","blatant","salient","illustrious","eminent","high-ranking","brazen","flagrant","glaring","ostentatious","overt","pretentious","brash","flamboyant","flashy","gaudy","disapprove","deplore","censure","immoral","indecent","filthy","improper","pornographic","vulgar","humorous","comical","playful","merry","mischievous","spirited","animated","ebullient","puppet","pawn","mouthpiece","even","horizontal","unbroken","uninterrupted","matching","placid","well-balanced","reciprocate","serene","tranquil","sedate","undisturbed","happening","occurrence","manifestation","dignified","stately","lofty","majestic","regal","graceful","pleasing","tasteful","refined","cultivated","cultured","polished","adept","skilful","superlative","glossy","glazed","silky","sleek","dreamy","glaze","pottery","covered","terracotta","enamel","gloss","lacquer","varnish","oily","greasy","slippery","grease","icy","unsafe","devious","crafty","cunning","dishonest","evasive","deceptive","oblique","roundabout","directly","plainly","point-blank","downright","touching","emotive","poignant","stirring","unqualified","unfit","incapable","incompetent","unprepared","unlimited","limitless","unrestricted","untold","unimaginable","unthinkable","innumerable","myriad"];
         cc.log('words:', this.words);
+
+        cc.log("lodash loaded => ", _.size(this.words));
 
         this.tanks = [];
         /////////////////////////////
@@ -26,12 +30,19 @@ var HelloWorldLayer = cc.Layer.extend({
         // 3. add your codes below...
         // add a label shows "Hello World"
         // create and initialize a label
-        var helloLabel = new cc.LabelTTF("Ztype", "Arial", 38);
+        // var helloLabel = new cc.LabelTTF("Ztype", "Arial", 38);
         // position the label on the center of the screen
-        helloLabel.x = size.width / 2;
-        helloLabel.y = size.height / 2 + 200;
+        // helloLabel.x = size.width / 2;
+        // helloLabel.y = size.height / 2 + 200;
         // add the label as a child to this layer
-        this.addChild(helloLabel, 5);
+        // this.addChild(helloLabel, 5);
+
+        this.opperssor = new cc.Sprite(res.oppressor_png);
+        this.opperssor.attr({
+            x: size.width / 2,
+            y: 30
+        });
+        this.addChild(this.opperssor, 5);
 
         // add "HelloWorld" splash screen"
         this.sprite0 = new cc.Sprite(res.gradient_png);
@@ -39,6 +50,7 @@ var HelloWorldLayer = cc.Layer.extend({
             x: size.width / 2,
             y: size.height / 2
         });
+        this.sprite0.setScaleX( 2.0 * size.width / this.sprite0.width )
         this.addChild(this.sprite0, 0);
 
         // add "HelloWorld" splash screen"
@@ -47,6 +59,8 @@ var HelloWorldLayer = cc.Layer.extend({
             x: size.width / 2,
             y: size.height / 2
         });
+        this.sprite1.setScaleX( 1.0 * size.width / this.sprite0.width )
+
         this.addChild(this.sprite1, 0);
 
         // var startItem = new cc.MenuItemImage(
@@ -78,18 +92,20 @@ var HelloWorldLayer = cc.Layer.extend({
         this.addChild(this.scoreLabel, 5);
     
         // timeout 60
-        this.timeoutLabel = cc.LabelTTF.create("" + this.timeout, "Arial", 30);
+        this.timeoutLabel = new cc.LabelTTF("" + this.timeout, "Arial", 30);
         this.timeoutLabel.x = 20;
         this.timeoutLabel.y = size.height - 20;
         this.addChild(this.timeoutLabel, 5);
         this.schedule(this.timer,1,this.timeout,1);
         this.addKeyboardListenser();
         this.update();
+
+        cc.audioEngine.playMusic(res.endure_ogg, true);
         return true;
     },
     addScore:function(){
         this.score +=1;
-        this.scoreLabel.setString("score:" + this.score);
+        this.scoreLabel.setString("score:" + this.score + " / " + this.words.length);
     },
     addSushi: function(){
         // var sushi = new cc.Sprite(res.oppressor_png);
@@ -98,7 +114,7 @@ var HelloWorldLayer = cc.Layer.extend({
         sushi.word = word;
         var size = cc.winSize;
 
-        var x = sushi.width/2+size.width/2*cc.random0To1();
+        var x = sushi.width +size.width/2*cc.random0To1();
         sushi.attr({
             x: x,
             y:size.height - 30
@@ -107,6 +123,9 @@ var HelloWorldLayer = cc.Layer.extend({
        
         this.addChild(sushi,5);
         this.tanks.push(sushi);
+        _.remove(this.words, function (w) {
+            return w == word;
+        });
     },
     removeSushi : function() {
         //移除到屏幕底部的sushi
@@ -196,7 +215,12 @@ var HelloWorldLayer = cc.Layer.extend({
                     var lower_case_letter = String.fromCharCode(keyCode).toLowerCase();
                     if (keyCode == 189 || keyCode == 173) lower_case_letter = '-';
                     cc.log('key pressed', keyCode,lower_case_letter);
-                    
+                    // this.playEffect(res.hit_ogg);
+                    cc.audioEngine.playEffect(res.target_ogg, false);
+
+                    cc.audioEngine.playEffect(res.hit_ogg, false);
+
+
                     if (!this.current_tank){
                         for (var i = 0; i < tanks.length; i++) {
                             // cc.log("removeSushi.........",this.tanks[i].y);
@@ -230,6 +254,7 @@ var HelloWorldLayer = cc.Layer.extend({
                                     tanks[i] = undefined;
                                     that.tanks.splice(i,1);
                                     this.current_tank = undefined;
+                                    that.addScore();
                                     i= i-1;
                                 }
                             }
@@ -246,6 +271,8 @@ var HelloWorldLayer = cc.Layer.extend({
                                         tanks[i] = undefined;
                                         that.tanks.splice(i,1);
                                         this.current_tank = undefined;
+                                        that.addScore();
+
                                         i= i-1;
                                     }
                                 }
@@ -261,7 +288,7 @@ var HelloWorldLayer = cc.Layer.extend({
                                     this.current_tank.word = will_word;
                                     this.current_tank.zIndex = 6;
                                     this.current_tank.label.setFontFillColor(cc.color("#ffff00"));
-                                    this.current_tank.label.setFontSize(14);
+                                    this.current_tank.label.setFontSize(18);
                                     this.current_tank.label.setString(will_word);
 
                                 }

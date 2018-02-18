@@ -5,7 +5,7 @@ var TankSprite = cc.Sprite.extend({
         cc.log("Tank onEnter", this.word);
         this._super();
         this.addTouchEventListenser();
-        this.label = new cc.LabelTTF(this.word, "Arial", 12);
+        this.label = new cc.LabelTTF(this.word, "Arial", 16);
         // position the label on the center of the screen
         this.label.x = 0;
         this.label.y = 1;
